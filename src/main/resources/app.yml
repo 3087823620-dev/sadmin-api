@@ -29,3 +29,10 @@ redis:
   rd1: # 数据源-ds1
     server: localhost:6379  # Redis服务地址
     db: 1 # Redis数据库编号
+
+sa-token:
+  token-name: authtoken # Token名称
+  timeout: 2592000  # Token有效期
+  is-concurrent: false # 是否允许同一账号并发登录
+  token-style: uuid # Token风格
+  is-log: true # 打印日志
