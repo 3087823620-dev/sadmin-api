@@ -17,7 +17,7 @@ import org.noear.solon.core.handle.Context;
 
 /**
  * 权限认证控制器
- * @visduo
+ *
  */
 @Mapping("/passport")
 @Controller
@@ -28,7 +28,7 @@ public class PassportController {
 
     /**
      * 登录
-     * @visduo
+     *
      *
      * @param ctx 上下文对象
      * @param username 账户账号
