@@ -3,6 +3,7 @@ package cn.fzw.demo.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.fzw.demo.entity.LoginlogEntity;
 import cn.fzw.demo.entity.UsersEntity;
+import cn.fzw.demo.entity.proxy.UsersEntityProxy;
 import cn.fzw.demo.utils.ClientipUtil;
 import cn.fzw.demo.utils.MD5SaltsUtil;
 import cn.fzw.demo.utils.ResponseResult;
@@ -10,15 +11,19 @@ import cn.hutool.core.date.DateUtil;
 import com.easy.query.api.proxy.client.EasyEntityQuery;
 import com.easy.query.solon.annotation.Db;
 import org.noear.solon.annotation.Controller;
+import org.noear.solon.annotation.Get;
 import org.noear.solon.annotation.Mapping;
 import org.noear.solon.annotation.Post;
 import org.noear.solon.core.handle.Context;
+import org.noear.solon.validation.annotation.NotBlank;
+import org.noear.solon.validation.annotation.Valid;
 
 
 /**
  * 权限认证控制器
  *
  */
+@Valid
 @Mapping("/passport")
 @Controller
 public class PassportController {
@@ -35,16 +40,21 @@ public class PassportController {
      * @param password 账户密码
      * @return 登录结果
      */
+
     @Post
     @Mapping("/login")
-    public ResponseResult login(Context ctx, String username, String password) {
+    public ResponseResult login(Context ctx, @NotBlank(message = "账户账号不能为空") String username,
+                                             @NotBlank(message = "账户密码不能为空") String password) {
         // 根据账户账号查询用户对象
         UsersEntity usersEntity = easyEntityQuery.queryable(UsersEntity.class)
                 .where(u -> {
                     // 条件：u.username = #{username}
                     u.username().eq(username);
                 })
+                .include( UsersEntityProxy::dept)
+                .include( UsersEntityProxy::role)
                 .firstOrNull();
+
 
         if (usersEntity == null) {
             // 用户对象不存在，返回失败信息
@@ -80,16 +90,36 @@ public class PassportController {
         StpUtil.login(usersEntity.getId());
         String token = StpUtil.getTokenValue();
 
+
+        // 将用户对象存储在SaToken的会话Session中
+        StpUtil.getSession().set("currentUser", usersEntity);
+
         // 返回结果，并将Token返回给前端
         return ResponseResult.success("登录成功", token);
+
+
     }
     //注销
     @Post
     @Mapping("/logout")
-    public ResponseResult logout(){
-        //注销
+    public ResponseResult logout() {
+        // 注销
         StpUtil.logout();
         return ResponseResult.success("注销成功", null);
     }
+
+    /*
+    获取登录用户信息
+    */
+
+    @Get
+    @Mapping("/currentUser")
+    public ResponseResult currentUser() {
+        // 获取当前登录用户对象
+        UsersEntity usersEntity = (UsersEntity)StpUtil.getSession().get("currentUser");
+        // 返回结果
+        return ResponseResult.success("获取当前登录用户信息成功", usersEntity);
+    }
+
 
 }

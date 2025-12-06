@@ -1,6 +1,8 @@
 package cn.fzw.demo.entity;
 
 import cn.fzw.demo.entity.proxy.UsersEntityProxy;
+import com.easy.query.core.annotation.Navigate;
+import com.easy.query.core.enums.RelationTypeEnum;
 import com.easy.query.core.proxy.ProxyEntityAvailable;
 import lombok.Data;
 import lombok.AllArgsConstructor;
@@ -8,6 +10,7 @@ import lombok.NoArgsConstructor;
 import com.easy.query.core.annotation.Column;
 import com.easy.query.core.annotation.Table;
 import com.easy.query.core.annotation.EntityProxy;
+import org.noear.snack.annotation.ONodeAttr;
 
 /**
  * 用户表 实体类。
@@ -20,7 +23,7 @@ import com.easy.query.core.annotation.EntityProxy;
 @AllArgsConstructor
 @Table(value = "users")
 @EntityProxy
-public class UsersEntity implements ProxyEntityAvailable<UsersEntity , UsersEntityProxy> {
+public class UsersEntity implements ProxyEntityAvailable<UsersEntity, UsersEntityProxy> {
 
     /**
      * 用户ID
@@ -46,11 +49,13 @@ public class UsersEntity implements ProxyEntityAvailable<UsersEntity , UsersEnti
     /**
      * 账户密码
      */
+    @ONodeAttr(ignore = true)
     private String password;
 
     /**
      * 账户盐值
      */
+    @ONodeAttr(ignore = true)
     private String salts;
 
     /**
@@ -73,5 +78,9 @@ public class UsersEntity implements ProxyEntityAvailable<UsersEntity , UsersEnti
      */
     private Long deleted;
 
+    @Navigate(value = RelationTypeEnum.ManyToOne)
+    private DeptEntity dept;
 
+    @Navigate(value = RelationTypeEnum.ManyToOne)
+    private RoleEntity role;
 }

@@ -1,11 +1,22 @@
 package cn.fzw.demo.config;
 
+import cn.dev33.satoken.context.SaHolder;
 import cn.dev33.satoken.dao.SaTokenDao;
 import cn.dev33.satoken.dao.SaTokenDaoForRedisx;
+
+import cn.dev33.satoken.router.SaRouter;
+import cn.dev33.satoken.solon.integration.SaTokenInterceptor;
+import cn.dev33.satoken.stp.StpUtil;
+import cn.fzw.demo.utils.ResponseResult;
 import org.noear.redisx.RedisClient;
 import org.noear.solon.annotation.Bean;
 import org.noear.solon.annotation.Configuration;
 import org.noear.solon.annotation.Inject;
+
+import cn.dev33.satoken.exception.NotPermissionException;
+import cn.dev33.satoken.exception.NotRoleException;
+import cn.dev33.satoken.exception.NotLoginException;
+
 
 /**
  * SaToken配置类
@@ -30,4 +41,43 @@ public class SaTokenConfig {
         return new SaTokenDaoForRedisx(client);
     }
 
+
+    @Bean
+    public SaTokenInterceptor saTokenInterceptor() {
+        return new SaTokenInterceptor()
+                // 设置拦截路径
+                .addInclude("/**")
+                // 认证函数：每次访问进入
+                .setAuth(r -> {
+                    // 登录认证
+                    SaRouter
+                            // 设置需要登录认证的路径
+                            .match("/**")
+                            // 设置不需要登录认证的路径
+                            .notMatch("/passport/login")
+                            // 认证方式 StpUtil::checkLogin 未登录会报错
+                            .check(StpUtil::checkLogin);
+                })
+                // 异常处理函数
+                .setError(e -> {
+                    // 判断异常类型
+                    if(e instanceof NotLoginException) {
+                        // 错误类型是未登录NotLoginException，封装返回401状态
+                        return new ResponseResult(401, "未登录", null);
+                    } else if(e instanceof NotRoleException || e instanceof NotPermissionException) {
+                        // 错误类型是无权限NotRoleException/NotPermissionException，封装返回403状态
+                        return new ResponseResult(403, "暂无权限", null);
+                    }
+
+                    // 异常类型无法匹配，直接返回异常对象
+                    return e;
+                })
+                // 前置函数：在路由之前调用，配置跨域
+                .setBeforeAuth(obj -> {
+                    SaHolder.getResponse()
+                            .setHeader("Access-Control-Allow-Origin", "*")
+                            .setHeader("Access-Control-Allow-Methods", "*")
+                            .setHeader("Access-Control-Allow-Headers", "*");
+                });
+    }
 }
