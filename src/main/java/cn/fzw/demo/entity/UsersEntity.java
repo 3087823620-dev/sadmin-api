@@ -1,15 +1,13 @@
 package cn.fzw.demo.entity;
 
 import cn.fzw.demo.entity.proxy.UsersEntityProxy;
-import com.easy.query.core.annotation.Navigate;
+import com.easy.query.core.annotation.*;
+import com.easy.query.core.basic.extension.logicdel.LogicDeleteStrategyEnum;
 import com.easy.query.core.enums.RelationTypeEnum;
 import com.easy.query.core.proxy.ProxyEntityAvailable;
 import lombok.Data;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import com.easy.query.core.annotation.Column;
-import com.easy.query.core.annotation.Table;
-import com.easy.query.core.annotation.EntityProxy;
 import org.noear.snack.annotation.ONodeAttr;
 
 /**
@@ -76,6 +74,7 @@ public class UsersEntity implements ProxyEntityAvailable<UsersEntity, UsersEntit
     /**
      * 删除状态，0未删除
      */
+    @LogicDelete(strategy = LogicDeleteStrategyEnum.DELETE_LONG_TIMESTAMP)
     private Long deleted;
 
     @Navigate(value = RelationTypeEnum.ManyToOne)
