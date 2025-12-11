@@ -11,8 +11,10 @@ import org.noear.solon.annotation.*;
 import org.noear.solon.validation.annotation.NotBlank;
 import org.noear.solon.validation.annotation.Valid;
 
+import java.util.List;
 
-    @Valid
+
+@Valid
     @Mapping("/dept")
     @Controller
     public class DeptController {
@@ -132,5 +134,24 @@ import org.noear.solon.validation.annotation.Valid;
 
             return ResponseResult.success("查询成功", deptEntity);
         }
+
+        /**
+         * 获取部门列表
+         * @visduo
+         *
+         * @return 部门列表
+         */
+        @Get
+        @Mapping("/optionList")
+        public ResponseResult optionList(){
+            List<DeptEntity> deptList = easyEntityQuery.queryable(DeptEntity.class)
+                    .toList() ;
+                    return ResponseResult.success("查询成功", deptList);
+        }
+
+
+
+
+
 
     }

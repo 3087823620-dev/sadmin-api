@@ -27,7 +27,22 @@
         <dependency>
             <groupId>org.noear</groupId>
             <artifactId>solon-web</artifactId>
+            <exclusions>
+                <!-- 排除Snack4依赖 -->
+                <exclusion>
+                    <groupId>org.noear</groupId>
+                    <artifactId>solon-serialization-snack4</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
+        <!-- 重新引入Snack3序列化 -->
+        <dependency>
+            <groupId>org.noear</groupId>
+            <artifactId>solon-serialization-snack3</artifactId>
+        </dependency>
+
+
         <dependency>
             <groupId>org.noear</groupId>
             <artifactId>solon-view-freemarker</artifactId>
